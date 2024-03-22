@@ -79,20 +79,68 @@ class UserController extends Controller
         }
     }
 
-//añade una imagen añ perfil del usuario
-public function updateImage(Request $request)
-{
-    $userId = $request->input('id');
-    $imageUrl = $request->input('image');
+    //añade una imagen añ perfil del usuario
+    public function updateImage(Request $request)
+    {
+        $userId = $request->input('id');
+        $imageUrl = $request->input('image');
 
-    $user = User::find($userId);
-    if ($user) {
-        $user->image = $imageUrl;
-        $user->save();
-        return response()->json(['message' => 'Imagen actualizada correctamente'], 200);
-    } else {
-        return response()->json(['message' => 'Usuario no encontrado'], 404);
+        $user = User::find($userId);
+        if ($user) {
+            $user->image = $imageUrl;
+            $user->save();
+            return response()->json(['message' => 'Imagen actualizada correctamente'], 200);
+        } else {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
     }
-}
     
+    //Cambia los datos del usuario
+
+    public function updateProfile(Request $request, $userId)
+    {
+        try {
+            $user = User::findOrFail($userId);
+        
+            $validatedData = $request->validate([
+                'name' => 'nullable|max:55',
+                'email' => 'nullable|email|unique:users,email,' . $user->id,
+                'password' => 'nullable|min:8',
+            ]);
+    
+            $updated = false;
+    
+            if ($request->filled('name')) {
+                $user->name = $validatedData['name'];
+                $updated = true;
+            }
+    
+            if ($request->filled('email')) {
+                $user->email = $validatedData['email'];
+                $updated = true;
+            }
+    
+            if ($request->filled('password')) {
+                $user->password = bcrypt($validatedData['password']);
+                $updated = true;
+            }
+    
+            if ($updated) {
+                $user->save();
+            }
+    
+            return response()->json([
+                'message' => $updated ? 'Perfil actualizado correctamente' : 'No se realizaron cambios',
+                'profile' => $user,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Se produjo un error al procesar la solicitud: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+    
+    
+
+
 }

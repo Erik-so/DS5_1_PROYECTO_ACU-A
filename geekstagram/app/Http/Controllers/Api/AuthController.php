@@ -16,8 +16,6 @@ class AuthController extends Controller {
             'name' => 'required|max:55',
             'email' => 'required',
             'password' => 'required',
-            'username' => 'required|max:55',
-            'platform_id' => 'required'
         ]);
 
         $validatedData['password'] = bcrypt($request->password);
@@ -68,4 +66,46 @@ class AuthController extends Controller {
 
         return response()->json([$user, $profile]);
     }
+
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'message' => 'Usuario no autenticado',
+            ], 401); // Código de estado 401 (No autorizado)
+        }
+        $validatedData = $request->validate([
+            'name' => 'nullable|max:55',
+            'email' => 'nullable|email',
+            'password' => 'nullable|min:8',
+        ]);
+    
+        $updated = false;
+    
+        if ($request->filled('name')) {
+            $user->name = $validatedData['name'];
+            $updated = true;
+        }
+    
+        if ($request->filled('email')) {
+            $user->email = $validatedData['email'];
+            $updated = true;
+        }
+    
+        if ($request->filled('password')) {
+            $user->password = bcrypt($validatedData['password']);
+            $updated = true;
+        }
+    
+        if ($updated) {
+            $user->save();
+        }
+    
+        return response()->json([
+            'message' => $updated ? 'Perfil actualizado correctamente' : 'No se realizaron cambios',
+            'profile' => $user,
+        ]);
+    }
+
 }

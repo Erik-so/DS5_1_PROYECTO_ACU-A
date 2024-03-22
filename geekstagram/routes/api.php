@@ -25,6 +25,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::middleware('auth:api')->group(function () {
+    Route::post('/updateUser', [AuthController::class, 'updateProfile']);
+});
+
+
 //Rutas 
 
 Route::get('/hashtags', [HashtagController::class, 'list']);
@@ -40,7 +45,6 @@ Route::get('/publications/search-one/{searched}', [PublicationController::class,
 Route::get('/publications/search-pub-comment/{id}', [PublicationController::class, 'search_pub_comment']);
 Route::get('/publications/search-comment/{publicationId}', [PublicationController::class, 'getCommentsForPublication']);
 Route::get('/publications/search-pub-profile/{userId}', [PublicationController::class, 'search_pub_profile']);
-Route::get('/publications/{id}', [PublicationController::class, 'item']);
 Route::post('/publications/create/', [PublicationController::class, 'create']);
 Route::post('/publications/update', [PublicationController::class, 'update']);
 Route::post('/publications/sum-like/{id}', [PublicationController::class, 'sum_like']);
@@ -60,8 +64,9 @@ Route::post('/sponsors/update', [SponsorController::class, 'update']);
 Route::get('/users', [UserController::class, 'list']);
 Route::get('/users/{id}', [UserController::class, 'item']);
 Route::post('/users/create/', [UserController::class, 'create']);
-Route::post('/users/update', [UserController::class, 'update']);
 Route::post('/users/upload-image/', [UserController::class, 'updateImage']);
+Route::post('/users/update/{userId}', [UserController::class, 'updateProfile']);
+
 
 Route::post('/login',[AuthController::class, 'login']);
 Route::post('/logout',[AuthController::class, 'logout']);

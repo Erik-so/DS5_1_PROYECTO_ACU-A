@@ -70,7 +70,7 @@ class PublicationController extends Controller
         ]);
 
         $hashtag = Hashtag::create([
-            'hashtag' => $data['hashtag']
+            'hashtag' => $data['hashtag'] 
         ]);
 
         if ($hashtag) {
